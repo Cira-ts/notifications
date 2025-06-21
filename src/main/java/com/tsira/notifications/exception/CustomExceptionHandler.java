@@ -6,6 +6,7 @@ import com.tsira.notifications.security.user.repository.AdminUserRepository;
 import com.tsira.notifications.security.user.repository.entity.AppUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,5 +65,13 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleUnauthorized(RuntimeException ex, WebRequest request) {
         logout();
         return handleExceptionInternal(ex, null, HttpHeaders.EMPTY, HttpStatus.UNAUTHORIZED, request);
+    }
+
+    @ExceptionHandler(value = OptimisticLockingFailureException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<Object> handleOptimisticLockException(OptimisticLockingFailureException ex, WebRequest request) {
+        Map<String, String> body = Map.of("errorCode", "OPTIMISTIC_LOCK_ERROR",
+                "message", "The resource was updated by another admin. Please reload and try again.");
+        return handleExceptionInternal(ex, body, HttpHeaders.EMPTY, HttpStatus.CONFLICT, request);
     }
 }

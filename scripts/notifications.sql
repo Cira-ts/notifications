@@ -36,6 +36,7 @@ create table customer
     name                  varchar(255)   not null,
     email                 varchar(255)   not null,
     phone_number          varchar(255)   not null,
+    version               BIGINT         DEFAULT 0 NOT NULL,
     constraint unique_customer_email unique (email)
 );
 
@@ -48,7 +49,8 @@ create table address
     value          varchar(255)   not null,
     valid_till_date  date           not null,
     customer_id    bigint         not null,
-    foreign key (customer_id) references customer (id)
+    foreign key (customer_id) references customer (id),
+    constraint unique_address_customer unique (customer_id, value)
 );
 
 create sequence seq_notification_preference start with 1000;
@@ -59,7 +61,8 @@ create table notification_preference
     type        varchar(50) not null,
     opted_in    boolean     not null,
     customer_id bigint      not null,
-    foreign key (customer_id) references customer (id)
+    foreign key (customer_id) references customer (id),
+    constraint unique_notification_preference_type_customer unique (type, customer_id)
 );
 
 create sequence seq_notification_log start with 1000;
@@ -80,4 +83,3 @@ create index idx_notification_log_type on notification_log(type);
 create index idx_notification_log_status on notification_log(status);
 create index idx_customer_email on customer(email);
 create index idx_notification_preference_type on notification_preference(type);
-

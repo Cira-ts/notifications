@@ -7,9 +7,12 @@ import com.tsira.notifications.notificationpreference.controller.dto.PreferenceG
 import com.tsira.notifications.notificationpreference.controller.dto.PreferenceUpdateDto;
 import com.tsira.notifications.notificationpreference.repository.enums.NotificationType;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -36,12 +39,52 @@ public interface NotificationPreferenceControllerApi {
             summary = "Create Preference",
             description = "Create Preference. Required role: `ADMIN`"
     )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Preference created successfully",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Preference exists",
+                    content = @Content(
+                            examples = {
+                                    @ExampleObject(
+                                            name = "preference_already_exists",
+                                            value = "{\"errorCode\": \"preference_already_exists\"}",
+                                            description = "preference already exists"
+                                    )
+                            }
+                    )
+            )
+    })
     void createPreference(@RequestBody @Valid PreferenceCreateDto dto);
 
     @Operation(
             summary = "Update Preference",
             description = "Update Preference. Required role: `ADMIN`"
     )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Preference updated successfully",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Preference exists",
+                    content = @Content(
+                            examples = {
+                                    @ExampleObject(
+                                            name = "preference_already_exists",
+                                            value = "{\"errorCode\": \"preference_already_exists\"}",
+                                            description = "preference already exists"
+                                    )
+                            }
+                    )
+            )
+    })
     void updatePreference(@PathVariable Long id, @RequestBody @Valid PreferenceUpdateDto dto);
 
     @Operation(

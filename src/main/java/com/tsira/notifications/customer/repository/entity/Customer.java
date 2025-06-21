@@ -30,6 +30,10 @@ public class Customer {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NotificationPreference> preferences = new ArrayList<>();
 

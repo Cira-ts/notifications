@@ -12,11 +12,11 @@ import com.tsira.notifications.exception.ExceptionUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -44,7 +44,7 @@ public class CustomerServiceImp implements CustomerService {
                 .build();
         try {
             repository.saveAndFlush(customer);
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
             ExceptionUtil.handleDatabaseExceptions(e, Map.of("unique_customer_email", "customer email already exists"));
         }
     }
@@ -53,10 +53,13 @@ public class CustomerServiceImp implements CustomerService {
         Customer customer = lookUpCustomer(id);
         customer.setName(dto.name());
         customer.setPhoneNumber(dto.phoneNumber());
+        customer.setEmail(dto.email());
         try {
-            customer.setEmail(dto.email());
             repository.saveAndFlush(customer);
-        } catch (Exception e) {
+        } catch (OptimisticLockingFailureException ex) {
+            throw ex;
+        }
+        catch (DataIntegrityViolationException e) {
             ExceptionUtil.handleDatabaseExceptions(e, Map.of("unique_customer_email", "customer email already exists"));
         }
     }

@@ -7,6 +7,10 @@ import com.tsira.notifications.address.repository.enums.AddressType;
 import com.tsira.notifications.common.paginationandsort.PageAndSortCriteria;
 import com.tsira.notifications.common.paginationandsort.PageView;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -36,12 +40,52 @@ public interface AddressControllerApi {
             summary = "Create Address",
             description = "Required role: `ADMIN`"
     )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Address created successfully",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Address exists",
+                    content = @Content(
+                            examples = {
+                                    @ExampleObject(
+                                            name = "address_already_exists",
+                                            value = "{\"errorCode\": \"address_already_exists\"}",
+                                            description = "address already exists"
+                                    )
+                            }
+                    )
+            )
+    })
     void createAddress(@RequestBody @Valid AddressCreateDto dto);
 
     @Operation(
             summary = "Update Address",
             description = "Required role: `ADMIN`"
     )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Address updated successfully",
+                    content = @Content()
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Address exists",
+                    content = @Content(
+                            examples = {
+                                    @ExampleObject(
+                                            name = "address_already_exists",
+                                            value = "{\"errorCode\": \"address_already_exists\"}",
+                                            description = "address already exists"
+                                    )
+                            }
+                    )
+            )
+    })
     void updateAddress(@PathVariable Long id, @RequestBody @Valid AddressUpdateDto dto);
 
     @Operation(

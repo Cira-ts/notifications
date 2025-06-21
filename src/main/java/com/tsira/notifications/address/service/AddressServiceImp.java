@@ -10,14 +10,17 @@ import com.tsira.notifications.address.repository.enums.AddressType;
 import com.tsira.notifications.common.paginationandsort.PageAndSortCriteria;
 import com.tsira.notifications.customer.repository.entity.Customer;
 import com.tsira.notifications.customer.service.CustomerService;
+import com.tsira.notifications.exception.ExceptionUtil;
 import com.tsira.notifications.exception.SecurityViolationException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -43,7 +46,11 @@ public class AddressServiceImp implements AddressService {
                 .validTillDate(dto.validTillDate())
                 .customer(customer)
                 .build();
-        repository.save(address);
+        try {
+            repository.saveAndFlush(address);
+        } catch (DataIntegrityViolationException e) {
+            ExceptionUtil.handleDatabaseExceptions(e, Map.of("unique_address_customer", "address_already_exists"));
+        }
     }
 
     public void updateAddress(Long id, AddressUpdateDto dto) {
@@ -51,6 +58,11 @@ public class AddressServiceImp implements AddressService {
         address.setType(dto.type());
         address.setValue(dto.value());
         address.setValidTillDate(dto.validTillDate());
+        try {
+            repository.saveAndFlush(address);
+        } catch (DataIntegrityViolationException e) {
+            ExceptionUtil.handleDatabaseExceptions(e, Map.of("unique_address_customer", "address_already_exists"));
+        }
     }
 
     public void deleteAddress(Long id) {

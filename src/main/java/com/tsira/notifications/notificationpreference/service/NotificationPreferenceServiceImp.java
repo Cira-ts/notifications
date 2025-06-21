@@ -3,6 +3,7 @@ package com.tsira.notifications.notificationpreference.service;
 import com.tsira.notifications.common.paginationandsort.PageAndSortCriteria;
 import com.tsira.notifications.customer.repository.entity.Customer;
 import com.tsira.notifications.customer.service.CustomerService;
+import com.tsira.notifications.exception.ExceptionUtil;
 import com.tsira.notifications.notificationpreference.controller.dto.PreferenceCreateDto;
 import com.tsira.notifications.notificationpreference.controller.dto.PreferenceGetDto;
 import com.tsira.notifications.notificationpreference.controller.dto.PreferenceUpdateDto;
@@ -11,13 +12,13 @@ import com.tsira.notifications.notificationpreference.repository.entity.Notifica
 import com.tsira.notifications.notificationpreference.repository.enums.NotificationType;
 import com.tsira.notifications.exception.SecurityViolationException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -35,28 +36,28 @@ public class NotificationPreferenceServiceImp implements NotificationPreferenceS
     }
 
     public void createPreference(PreferenceCreateDto dto) {
-        Optional<NotificationPreference> existingPreference = repository
-                .findByCustomerIdAndType(dto.customerId(), dto.type());
-
-        if (existingPreference.isPresent()) {
-            NotificationPreference preference = existingPreference.get();
-            preference.setOptedIn(dto.optedIn());
-            repository.save(preference);
-        }else {
-            Customer customer = customerService.lookUpCustomer(dto.customerId());
-            NotificationPreference preference = NotificationPreference.builder()
-                    .type(dto.type())
-                    .optedIn(dto.optedIn())
-                    .customer(customer)
-                    .build();
-            repository.save(preference);
+        Customer customer = customerService.lookUpCustomer(dto.customerId());
+        NotificationPreference preference = NotificationPreference.builder()
+                .type(dto.type())
+                .optedIn(dto.optedIn())
+                .customer(customer)
+                .build();
+        try {
+            repository.saveAndFlush(preference);
+        } catch (DataIntegrityViolationException e) {
+            ExceptionUtil.handleDatabaseExceptions(e, Map.of("unique_notification_preference_type_customer", "preference_already_exists"));
         }
     }
 
-    public void updatePreference(Long id, @Valid PreferenceUpdateDto dto) {
+    public void updatePreference(Long id, PreferenceUpdateDto dto) {
         NotificationPreference notificationPreference = lookUpNotificationPreference(id);
         notificationPreference.setType(dto.type());
         notificationPreference.setOptedIn(dto.optedIn());
+        try {
+            repository.saveAndFlush(notificationPreference);
+        } catch (DataIntegrityViolationException e) {
+            ExceptionUtil.handleDatabaseExceptions(e, Map.of("unique_notification_preference_type_customer", "preference_already_exists"));
+        }
     }
 
     public void deletePreference(Long id) {
