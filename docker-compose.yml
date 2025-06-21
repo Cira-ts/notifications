@@ -24,7 +24,7 @@ services:
     environment:
       DATABASE_NAME: notification_management
       USERNAME: postgres
-      POSTGRES_PASSWORD: parolation
+      POSTGRES_PASSWORD: password
     ports:
       - "8080:8080"
     networks:
