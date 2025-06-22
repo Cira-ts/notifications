@@ -2,7 +2,7 @@
 A fully Functional Java Microservice with Spring Boot REST API for Managing Customer Notifications, Preferences and Contact Information. Ideal for Systems that Require Centralized Notification Management and CRUD Operations.
 
 ## Prerequisites
-- Docker Desktop (Docker and Docker Compose)
+- Docker Desktop
 
 ## Installation
 ```bash
@@ -25,7 +25,7 @@ Within each package, related controllers, services, repositories and DTOs are gr
 
 **Design choices:**
 - **Layered Architecture:** Clean separation between controllers, services, repositories, and DTOs to improve maintainability.
-- **PostgreSQL Database:** Reliable and compatible with relational data.
+- **PostgreSQL Database:** Reliable and compatible with relational data, with indexed tables to ensure faster query performance.
 - **Docker:** For easy setup, deployment, and consistent environments using Docker Compose.
 - **Security:** Spring Security with JWT-based authentication protects all endpoints and ensures secure admin access.
 - **Swagger Integration:** API documentation is provided for easy exploration and testing of endpoints.
